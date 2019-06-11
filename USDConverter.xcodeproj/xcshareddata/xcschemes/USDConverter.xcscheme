@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "56B3E89A22AFC0D100151FEE"
-               BuildableName = "USDConverter"
+               BuildableName = "usdconv"
                BlueprintName = "USDConverter"
                ReferencedContainer = "container:USDConverter.xcodeproj">
             </BuildableReference>
@@ -45,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "56B3E89A22AFC0D100151FEE"
-            BuildableName = "USDConverter"
+            BuildableName = "usdconv"
             BlueprintName = "USDConverter"
             ReferencedContainer = "container:USDConverter.xcodeproj">
          </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "56B3E89A22AFC0D100151FEE"
-            BuildableName = "USDConverter"
+            BuildableName = "usdconv"
             BlueprintName = "USDConverter"
             ReferencedContainer = "container:USDConverter.xcodeproj">
          </BuildableReference>
