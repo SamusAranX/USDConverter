@@ -14,7 +14,8 @@ print("usdconv v\(version)")
 
 let inputFiles = CommandLine.arguments.dropFirst()
 guard inputFiles.count != 0 else {
-	fatalError("You need to specify at least one file to convert.")
+	print("You need to specify at least one file to convert.")
+	exit(1)
 }
 
 var failedConversions: [String] = []
