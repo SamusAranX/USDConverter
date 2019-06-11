@@ -23,7 +23,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		56B3E89B22AFC0D100151FEE /* USDConverter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = USDConverter; sourceTree = BUILT_PRODUCTS_DIR; };
+		56B3E89B22AFC0D100151FEE /* usdconv */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = usdconv; sourceTree = BUILT_PRODUCTS_DIR; };
 		56B3E89E22AFC0D100151FEE /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -49,7 +49,7 @@
 		56B3E89C22AFC0D100151FEE /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				56B3E89B22AFC0D100151FEE /* USDConverter */,
+				56B3E89B22AFC0D100151FEE /* usdconv */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -69,6 +69,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 56B3E8A222AFC0D100151FEE /* Build configuration list for PBXNativeTarget "USDConverter" */;
 			buildPhases = (
+				56B3E8C022AFE55100151FEE /* Run Script (SwiftLint) */,
 				56B3E89722AFC0D100151FEE /* Sources */,
 				56B3E89822AFC0D100151FEE /* Frameworks */,
 				56B3E89922AFC0D100151FEE /* CopyFiles */,
@@ -79,7 +80,7 @@
 			);
 			name = USDConverter;
 			productName = USDConverter;
-			productReference = 56B3E89B22AFC0D100151FEE /* USDConverter */;
+			productReference = 56B3E89B22AFC0D100151FEE /* usdconv */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -113,6 +114,27 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		56B3E8C022AFE55100151FEE /* Run Script (SwiftLint) */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script (SwiftLint)";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\nswiftlint\nelse\necho \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		56B3E89722AFC0D100151FEE /* Sources */ = {
@@ -245,7 +267,8 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4254J4CMHQ;
 				ENABLE_HARDENED_RUNTIME = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.emmalyx.USDConverter;
+				PRODUCT_NAME = usdconv;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -256,7 +279,8 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4254J4CMHQ;
 				ENABLE_HARDENED_RUNTIME = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.emmalyx.USDConverter;
+				PRODUCT_NAME = usdconv;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
