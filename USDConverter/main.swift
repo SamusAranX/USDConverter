@@ -9,7 +9,7 @@
 import Foundation
 import ModelIO
 
-let version = "1.0.1"
+let version = "1.1.0"
 print("usdconv v\(version)")
 
 let inputFiles = CommandLine.arguments.dropFirst()
@@ -17,6 +17,30 @@ guard inputFiles.count != 0 else {
 	print("You need to specify at least one file to convert.")
 	exit(1)
 }
+
+for inFile in inputFiles {
+	let model = URL(fileURLWithPath: inFile)
+
+	let asset = MDLAsset(url: model)
+
+	for obj in asset.childObjects(of: MDLMesh.self) {
+		guard let mesh = obj as? MDLMesh else {
+			print("mesh conversion failed")
+			continue
+		}
+
+		for rawSubmesh in mesh.submeshes ?? [] {
+			guard let submesh = rawSubmesh as? MDLSubmesh else {
+				print("submesh conversion failed")
+				continue
+			}
+
+			print(submesh.material)
+		}
+	}
+}
+
+exit(0)
 
 var failedConversions: [String] = []
 for inFile in inputFiles {

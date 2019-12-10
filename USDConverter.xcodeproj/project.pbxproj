@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		568206AD239FC29200A7F547 /* MTLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568206AC239FC29200A7F547 /* MTLParser.swift */; };
+		568206B0239FC59C00A7F547 /* MTLLineParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568206AF239FC59C00A7F547 /* MTLLineParser.swift */; };
+		568206B2239FC7C200A7F547 /* MTLFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568206B1239FC7C200A7F547 /* MTLFile.swift */; };
+		568206B4239FCE3800A7F547 /* MTLMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568206B3239FCE3800A7F547 /* MTLMaterial.swift */; };
+		568206B6239FCFAE00A7F547 /* MTLLineType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568206B5239FCFAE00A7F547 /* MTLLineType.swift */; };
 		56B3E89F22AFC0D100151FEE /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56B3E89E22AFC0D100151FEE /* main.swift */; };
 /* End PBXBuildFile section */
 
@@ -23,6 +28,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		568206AC239FC29200A7F547 /* MTLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MTLParser.swift; sourceTree = "<group>"; };
+		568206AF239FC59C00A7F547 /* MTLLineParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MTLLineParser.swift; sourceTree = "<group>"; };
+		568206B1239FC7C200A7F547 /* MTLFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MTLFile.swift; sourceTree = "<group>"; };
+		568206B3239FCE3800A7F547 /* MTLMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MTLMaterial.swift; sourceTree = "<group>"; };
+		568206B5239FCFAE00A7F547 /* MTLLineType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MTLLineType.swift; sourceTree = "<group>"; };
 		56B3E89B22AFC0D100151FEE /* usdconv */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = usdconv; sourceTree = BUILT_PRODUCTS_DIR; };
 		56B3E89E22AFC0D100151FEE /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -38,6 +48,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		568206AE239FC58C00A7F547 /* MTLParser */ = {
+			isa = PBXGroup;
+			children = (
+				568206B1239FC7C200A7F547 /* MTLFile.swift */,
+				568206AF239FC59C00A7F547 /* MTLLineParser.swift */,
+				568206B5239FCFAE00A7F547 /* MTLLineType.swift */,
+				568206B3239FCE3800A7F547 /* MTLMaterial.swift */,
+				568206AC239FC29200A7F547 /* MTLParser.swift */,
+			);
+			path = MTLParser;
+			sourceTree = "<group>";
+		};
 		56B3E89222AFC0D100151FEE = {
 			isa = PBXGroup;
 			children = (
@@ -57,6 +79,7 @@
 		56B3E89D22AFC0D100151FEE /* USDConverter */ = {
 			isa = PBXGroup;
 			children = (
+				568206AE239FC58C00A7F547 /* MTLParser */,
 				56B3E89E22AFC0D100151FEE /* main.swift */,
 			);
 			path = USDConverter;
@@ -141,6 +164,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				568206B4239FCE3800A7F547 /* MTLMaterial.swift in Sources */,
+				568206B0239FC59C00A7F547 /* MTLLineParser.swift in Sources */,
+				568206B2239FC7C200A7F547 /* MTLFile.swift in Sources */,
+				568206B6239FCFAE00A7F547 /* MTLLineType.swift in Sources */,
+				568206AD239FC29200A7F547 /* MTLParser.swift in Sources */,
 				56B3E89F22AFC0D100151FEE /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -264,6 +292,7 @@
 		56B3E8A322AFC0D100151FEE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4254J4CMHQ;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -276,6 +305,7 @@
 		56B3E8A422AFC0D100151FEE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4254J4CMHQ;
 				ENABLE_HARDENED_RUNTIME = YES;
