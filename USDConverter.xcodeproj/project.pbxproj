@@ -7,11 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5682EE9B23A04B3900D68022 /* MTLFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5682EE9623A04B3900D68022 /* MTLFile.swift */; };
-		5682EE9F23A04B3900D68022 /* MTLMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5682EE9A23A04B3900D68022 /* MTLMaterial.swift */; };
-		56A8800E23A04F41006DAAD4 /* MTLErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56A8800D23A04F41006DAAD4 /* MTLErrors.swift */; };
+		5682EE9B23A04B3900D68022 /* ModelFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5682EE9623A04B3900D68022 /* ModelFile.swift */; };
+		5682EE9F23A04B3900D68022 /* ModelMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5682EE9A23A04B3900D68022 /* ModelMaterial.swift */; };
 		56B3E89F22AFC0D100151FEE /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56B3E89E22AFC0D100151FEE /* main.swift */; };
-		56CA4F8B23A04A7400801042 /* MTLGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CA4F8A23A04A7400801042 /* MTLGenerator.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -27,12 +25,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		5682EE9623A04B3900D68022 /* MTLFile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MTLFile.swift; sourceTree = "<group>"; };
-		5682EE9A23A04B3900D68022 /* MTLMaterial.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MTLMaterial.swift; sourceTree = "<group>"; };
-		56A8800D23A04F41006DAAD4 /* MTLErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MTLErrors.swift; sourceTree = "<group>"; };
+		5682EE9623A04B3900D68022 /* ModelFile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModelFile.swift; sourceTree = "<group>"; };
+		5682EE9A23A04B3900D68022 /* ModelMaterial.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModelMaterial.swift; sourceTree = "<group>"; };
 		56B3E89B22AFC0D100151FEE /* usdconv */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = usdconv; sourceTree = BUILT_PRODUCTS_DIR; };
 		56B3E89E22AFC0D100151FEE /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		56CA4F8A23A04A7400801042 /* MTLGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MTLGenerator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,15 +42,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		5682EE9523A04B2500D68022 /* MTLFile */ = {
+		5682EE9523A04B2500D68022 /* ModelFile */ = {
 			isa = PBXGroup;
 			children = (
-				5682EE9623A04B3900D68022 /* MTLFile.swift */,
-				5682EE9A23A04B3900D68022 /* MTLMaterial.swift */,
-				56CA4F8A23A04A7400801042 /* MTLGenerator.swift */,
-				56A8800D23A04F41006DAAD4 /* MTLErrors.swift */,
+				5682EE9623A04B3900D68022 /* ModelFile.swift */,
+				5682EE9A23A04B3900D68022 /* ModelMaterial.swift */,
 			);
-			path = MTLFile;
+			path = ModelFile;
 			sourceTree = "<group>";
 		};
 		56B3E89222AFC0D100151FEE = {
@@ -76,7 +70,7 @@
 		56B3E89D22AFC0D100151FEE /* USDConverter */ = {
 			isa = PBXGroup;
 			children = (
-				5682EE9523A04B2500D68022 /* MTLFile */,
+				5682EE9523A04B2500D68022 /* ModelFile */,
 				56B3E89E22AFC0D100151FEE /* main.swift */,
 			);
 			path = USDConverter;
@@ -161,10 +155,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5682EE9F23A04B3900D68022 /* MTLMaterial.swift in Sources */,
-				56CA4F8B23A04A7400801042 /* MTLGenerator.swift in Sources */,
-				5682EE9B23A04B3900D68022 /* MTLFile.swift in Sources */,
-				56A8800E23A04F41006DAAD4 /* MTLErrors.swift in Sources */,
+				5682EE9F23A04B3900D68022 /* ModelMaterial.swift in Sources */,
+				5682EE9B23A04B3900D68022 /* ModelFile.swift in Sources */,
 				56B3E89F22AFC0D100151FEE /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -288,7 +280,7 @@
 		56B3E8A322AFC0D100151FEE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = USDConverter/usdconv.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4254J4CMHQ;
@@ -302,7 +294,7 @@
 		56B3E8A422AFC0D100151FEE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = USDConverter/usdconv.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4254J4CMHQ;
