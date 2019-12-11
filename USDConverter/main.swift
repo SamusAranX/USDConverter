@@ -18,15 +18,6 @@ guard inputFilePaths.count != 0 else {
 	exit(1)
 }
 
-for inFilePath in inputFilePaths {
-	let modelURL = URL(fileURLWithPath: inFilePath)
-	let asset = MDLAsset(url: modelURL)
-
-	
-}
-
-exit(0)
-
 var failedConversions: [String] = []
 for inFile in inputFilePaths {
 	let model = URL(fileURLWithPath: inFile)
@@ -38,12 +29,41 @@ for inFile in inputFilePaths {
 
 	let modelDir = model.deletingLastPathComponent()
 	let modelOut = model.deletingPathExtension().lastPathComponent + ".obj"
+	let mtlOut = model.deletingPathExtension().lastPathComponent + "_aux.mtl"
+	let auxOut = model.deletingPathExtension().lastPathComponent + "_aux.txt"
 	let asset = MDLAsset(url: model)
 
 	do {
-		let target = URL(fileURLWithPath: modelOut, relativeTo: modelDir)
-		try asset.export(to: target)
-		print("\(model.lastPathComponent) exported to \(target.lastPathComponent)")
+		print("Converting \(model.lastPathComponent)…")
+		let objTarget = URL(fileURLWithPath: modelOut, relativeTo: modelDir)
+		try asset.export(to: objTarget)
+
+		print("Generating auxiliary MTL file…")
+		let modelFile = try ModelFile(modelFile: model)
+		let mtlContent = modelFile.generateMTL()
+		let mtlTarget = URL(fileURLWithPath: mtlOut, relativeTo: modelDir)
+		try mtlContent.write(to: mtlTarget, atomically: false, encoding: .utf8)
+
+		print("Generating auxiliary material list…")
+		let sameMaterials = Dictionary(grouping: modelFile.materials, by: { $0 })
+		let sortedDict = sameMaterials.sorted(by: {$0.1.count > $1.1.count})
+		var auxString = "# Auxiliary USDConverter File\n\n"
+
+		auxString.append("\(sortedDict.count) materials in total\n\n")
+
+		for kvi in sortedDict {
+			let occurrenceStr = kvi.value.count == 1 ? "occurrence" : "occurrences"
+			auxString.append("\(kvi.value.count) \(occurrenceStr): \(kvi.key.name)\n")
+			for material in kvi.value.sorted(by: { $0.name.localizedStandardCompare($1.name) == .orderedAscending }) {
+				auxString.append("\(material.name)\n")
+			}
+			auxString.append("\n")
+		}
+		
+		let auxTarget = URL(fileURLWithPath: auxOut, relativeTo: modelDir)
+		try auxString.write(to: auxTarget, atomically: false, encoding: .utf8)
+		
+		print("\(model.lastPathComponent) exported to \(objTarget.lastPathComponent)")
 	} catch {
 		failedConversions.append(model.lastPathComponent)
 	}
