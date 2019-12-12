@@ -54,7 +54,7 @@ class ModelFile {
 		for material in self.materials {
 			mtlString.append(material.generateMTL() + "\n\n")
 		}
-		return mtlString
+		return mtlString.trimmingCharacters(in: .whitespacesAndNewlines)
 	}
 
 }

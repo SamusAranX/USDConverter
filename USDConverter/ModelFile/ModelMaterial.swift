@@ -78,11 +78,11 @@ class ModelMaterial: Hashable, Equatable, CustomStringConvertible {
 
 	private static let allSemantics: [MDLMaterialSemantic] = [
 		.baseColor, .emission, .specular, .opacity, .ambientOcclusion, .subsurface, .metallic, .specularTint,
-		.roughness, .anisotropic, .anisotropicRotation, .sheen, .sheenTint, .clearcoat, .clearcoatGloss
+		.roughness, .anisotropic, .anisotropicRotation, .sheen, .sheenTint, .clearcoat, .clearcoatGloss, .tangentSpaceNormal
 	]
 	private static let allSemanticsMTL = [
 		"Kd", "Ka", "Ks", "d", "ao", "subsurface", "metallic", "specularTint", "roughness",
-		"anisotropic", "anisotropicRotation", "sheen", "sheenTint", "clearCoat", "clearCoatGloss"
+		"anisotropic", "anisotropicRotation", "sheen", "sheenTint", "clearCoat", "clearCoatGloss", "tangentSpaceNormal"
 	]
 	private var allSemanticDict: [String: MDLMaterialSemantic] {
 		return Dictionary(uniqueKeysWithValues: zip(ModelMaterial.allSemanticsMTL, ModelMaterial.allSemantics))
@@ -134,9 +134,7 @@ class ModelMaterial: Hashable, Equatable, CustomStringConvertible {
 		var tempString = ""
 		tempString.append("newmtl \(name)\n")
 
-		for (idx, semanticName) in ModelMaterial.allSemanticsMTL.enumerated() {
-			let lastIteration = idx == ModelMaterial.allSemanticsMTL.count-1
-
+		for semanticName in ModelMaterial.allSemanticsMTL {
 			if let propertyValue = self.get(property: semanticName) {
 				let materialValue = MaterialValue(materialProperty: propertyValue, forceExtended: self.forceExtendedProperties.contains(semanticName))
 
@@ -147,18 +145,29 @@ class ModelMaterial: Hashable, Equatable, CustomStringConvertible {
 						texturePath.removeSubrange(dirRange)
 					}
 
-					tempString.append("\tmap_\(semanticName) \(texturePath)")
-				} else {
-					tempString.append("\t\(semanticName) \(materialValue.formattedFloat)")
-				}
+					do {
+						let pattern = #"^.*?(.*?)\.usdz\[(.*?)\]$"#
+						let regex = try NSRegularExpression(pattern: pattern, options: [])
+						let nsRange = NSRange(texturePath.startIndex..<texturePath.endIndex, in: texturePath)
 
-				if !lastIteration {
-					tempString.append("\n")
+						if let match = regex.firstMatch(in: texturePath, options: [], range: nsRange),
+							let filenameRange = Range(match.range(at: 1), in: texturePath),
+							let textureRange = Range(match.range(at: 2), in: texturePath) {
+
+							let modelFile = String(texturePath[filenameRange])
+							let textureFile = URL(fileURLWithPath: String(texturePath[textureRange])).lastPathComponent
+							tempString.append("\tmap_\(semanticName) \(modelFile)/\(textureFile)\n")
+						}
+					} catch {
+						tempString.append("\tmap_\(semanticName) \(texturePath)\n")
+					}
+				} else {
+					tempString.append("\t\(semanticName) \(materialValue.formattedFloat)\n")
 				}
 			}
 		}
 
-		return tempString
+		return tempString.trimmingCharacters(in: .whitespacesAndNewlines)
 	}
 
 }
