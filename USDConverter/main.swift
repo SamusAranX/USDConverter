@@ -9,7 +9,7 @@
 import Foundation
 import ModelIO
 
-let version = "1.1.1"
+let version = "1.1.2"
 print("usdconv v\(version)")
 
 let inputFilePaths = CommandLine.arguments.dropFirst()
