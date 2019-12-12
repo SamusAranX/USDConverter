@@ -9,7 +9,7 @@
 import Foundation
 import ModelIO
 
-let version = "1.1.0"
+let version = "1.1.1"
 print("usdconv v\(version)")
 
 let inputFilePaths = CommandLine.arguments.dropFirst()
@@ -30,7 +30,9 @@ for inFile in inputFilePaths {
 	let modelDir = model.deletingLastPathComponent()
 	let modelOut = model.deletingPathExtension().lastPathComponent + ".obj"
 	let mtlOut = model.deletingPathExtension().lastPathComponent + "_aux.mtl"
+	let mtlTarget = URL(fileURLWithPath: mtlOut, relativeTo: modelDir)
 	let auxOut = model.deletingPathExtension().lastPathComponent + "_aux.txt"
+	let auxTarget = URL(fileURLWithPath: auxOut, relativeTo: modelDir)
 	let asset = MDLAsset(url: model)
 
 	do {
@@ -38,13 +40,12 @@ for inFile in inputFilePaths {
 		let objTarget = URL(fileURLWithPath: modelOut, relativeTo: modelDir)
 		try asset.export(to: objTarget)
 
-		print("Generating auxiliary MTL file…")
+		print("Generating \(mtlTarget.lastPathComponent)…")
 		let modelFile = try ModelFile(modelFile: model)
 		let mtlContent = modelFile.generateMTL()
-		let mtlTarget = URL(fileURLWithPath: mtlOut, relativeTo: modelDir)
 		try mtlContent.write(to: mtlTarget, atomically: false, encoding: .utf8)
 
-		print("Generating auxiliary material list…")
+		print("Generating \(auxTarget.lastPathComponent)…")
 		let sameMaterials = Dictionary(grouping: modelFile.materials, by: { $0 })
 		let sortedDict = sameMaterials.sorted(by: {$0.1.count > $1.1.count})
 		var auxString = "# Auxiliary USDConverter File\n\n"
@@ -59,9 +60,8 @@ for inFile in inputFilePaths {
 			}
 			auxString.append("\n")
 		}
-		
-		let auxTarget = URL(fileURLWithPath: auxOut, relativeTo: modelDir)
-		try auxString.write(to: auxTarget, atomically: false, encoding: .utf8)
+
+		try auxString.trimmingCharacters(in: .whitespacesAndNewlines).write(to: auxTarget, atomically: false, encoding: .utf8)
 		
 		print("\(model.lastPathComponent) exported to \(objTarget.lastPathComponent)")
 	} catch {
