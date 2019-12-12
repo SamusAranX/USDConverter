@@ -46,6 +46,15 @@ for inFile in inputFilePaths {
 		try mtlContent.write(to: mtlTarget, atomically: false, encoding: .utf8)
 
 		print("Generating \(auxTarget.lastPathComponent)…")
+
+		do {
+			// Somehow, doing this a second time here inside of a do/catch block prevents the
+			// same thing from crashing the program below. But only sometimes. ¯\_(ツ)_/¯
+			Dictionary(grouping: modelFile.materials, by: { $0 })
+		} catch {
+			fatalError("Please try again. For some reason, this specific model file triggers a bug I have no control over.")
+		}
+
 		let sameMaterials = Dictionary(grouping: modelFile.materials, by: { $0 })
 		let sortedDict = sameMaterials.sorted(by: {$0.1.count > $1.1.count})
 		var auxString = "# Auxiliary USDConverter File\n\n"
@@ -56,7 +65,7 @@ for inFile in inputFilePaths {
 			let occurrenceStr = kvi.value.count == 1 ? "occurrence" : "occurrences"
 			auxString.append("\(kvi.value.count) \(occurrenceStr): \(kvi.key.name)\n")
 			for material in kvi.value.sorted(by: { $0.name.localizedStandardCompare($1.name) == .orderedAscending }) {
-				auxString.append("\(material.name)\n")
+				auxString.append("\t\(material.name)\n")
 			}
 			auxString.append("\n")
 		}
