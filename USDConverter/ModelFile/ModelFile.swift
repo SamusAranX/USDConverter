@@ -43,17 +43,21 @@ class ModelFile {
 				let materialName = "material_\(childIndex)"
 				let mtlMaterial = ModelMaterial(materialName: materialName, originalMaterial: material, assetURL: self.asset.url)
 				self.materials.append(mtlMaterial)
-			}
 
-			childIndex += 1
+				childIndex += 1
+			}
 		}
 	}
 
-	func generateMTL(_ convertToPNG: Bool) -> String {
-		var mtlString = "# USDConverter MTL File: \(file.deletingPathExtension().lastPathComponent).mtl\n\n"
-		for material in self.materials {
-			mtlString.append(material.generateMTL(includeMaterialName: true, convertToPNG: convertToPNG) + "\n\n")
+	func generateMTL(_ convertToPNG: Bool, excludeMaterials: [String]) -> String {
+		var mtlString = "# USDConverter MTL File: \(file.deletingPathExtension().lastPathComponent).mtl\n"
+		if !excludeMaterials.isEmpty {
+			mtlString.append("# \(excludeMaterials.count) duplicate materials have been omitted\n")
+		}
+		mtlString.append("\n")
 
+		for material in self.materials.filter({ !excludeMaterials.contains($0.name) }) {
+			mtlString.append(material.generateMTL(includeMaterialName: true, convertToPNG: convertToPNG) + "\n\n")
 		}
 		return mtlString.trimmingCharacters(in: .whitespacesAndNewlines)
 	}
@@ -66,7 +70,7 @@ class ModelFile {
 				guard let materialProp = material.get(semantic),
 					let texturePath = materialProp.stringValue,
 					let textureSampler = materialProp.textureSamplerValue else {
-					continue
+						continue
 				}
 
 				var textureURL = URL(fileURLWithPath: ModelMaterial.parseTexturePath(texturePath))
@@ -93,13 +97,13 @@ class ModelFile {
 				let textureType = textureURL.pathExtension.lowercased()
 
 				switch(textureType) {
-				case "png":
-					imageType = .png
-				case "jpg", "jpeg":
-					imageType = .jpeg
-				default:
-					print("Unknown texture type \"\(textureType)\" of texture \(textureURL.lastPathComponent)")
-					imageType = .png
+					case "png":
+						imageType = .png
+					case "jpg", "jpeg":
+						imageType = .jpeg
+					default:
+						print("Unknown texture type \"\(textureType)\" of texture \(textureURL.lastPathComponent)")
+						imageType = .png
 				}
 
 				if convertToPNG {
@@ -126,3 +130,4 @@ class ModelFile {
 	}
 
 }
+
