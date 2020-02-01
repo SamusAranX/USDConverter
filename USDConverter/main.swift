@@ -16,7 +16,7 @@ extension Sequence where Iterator.Element: Hashable {
 	}
 }
 
-let version = "1.3"
+let version = "1.3.1"
 print("usdconv v\(version)")
 
 var inputFilePaths = CommandLine.arguments.dropFirst().unique()
@@ -101,35 +101,43 @@ for inFile in inputFilePaths {
 
 	// MARK: - De-duplicate OBJ materials
 
-	print("Correcting OBJ material references…")
+	print("Correcting OBJ floats and material references…")
 
 	guard let objContents = try? String(contentsOf: modelIOObjURL, encoding: .utf8) else {
 		print("Couldn't read \(modelIOObj)")
 		continue
 	}
 
+	let off = OBJFloatFormatter()
 	var newObjContents: [String] = []
 	objContents.enumerateLines(invoking: {
 		line, _ in
 
-		if line.starts(with: "mtllib") {
+		if line.starts(with: "v ") || line.starts(with: "vn ") || line.starts(with: "vt ") {
+			let splitLine = line.split(separator: " ")
+			var newObjLine = "\(splitLine.first!) "
+			for floatStr in splitLine.dropFirst() {
+				guard let formatted = off.string(for: String(floatStr)) else {
+					print(floatStr)
+					fatalError("Model I/O's output is seriously malformed. Please wait for Apple to fix Model I/O before attempting to convert this file again.")
+				}
+				newObjLine.append("\(formatted) ")
+			}
+			newObjContents.append(newObjLine.trimmingCharacters(in: .whitespaces))
+		} else if line.starts(with: "mtllib") {
 			newObjContents.append("mtllib \(modelMtl)")
-			return
-		}
+		} else if line.starts(with: "usemtl") {
+			let matName = line.dropFirst(7)
+			let deduplicatedMatName = materialCountDict.filter({
+				return $0.value.map({
+					Substring($0.name) // Swift wants a Substring for some reason
+				}).contains(matName)
+			})[0].key.name
 
-		guard line.starts(with: "usemtl") else {
+			newObjContents.append("usemtl \(deduplicatedMatName)")
+		} else {
 			newObjContents.append(line)
-			return
 		}
-
-		let matName = line.dropFirst(7)
-		let deduplicatedMatName = materialCountDict.filter({
-			return $0.value.map({
-				Substring($0.name) // Swift wants a Substring for some reason
-			}).contains(matName)
-		})[0].key.name
-
-		newObjContents.append("usemtl \(deduplicatedMatName)")
 	})
 
 	// MARK: - Writing corrected files
