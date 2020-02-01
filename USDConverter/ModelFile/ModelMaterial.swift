@@ -81,7 +81,7 @@ class ModelMaterial: Hashable, CustomStringConvertible {
 	]
 
 	var description: String {
-		return self.generateMTL()
+		return self.generateMTL(includeMaterialName: false, convertToPNG: false)
 	}
 
 	init(materialName: String, originalMaterial: MDLMaterial?, assetURL: URL?) {
@@ -95,16 +95,10 @@ class ModelMaterial: Hashable, CustomStringConvertible {
 	}
 
 	static func == (lhs: ModelMaterial, rhs: ModelMaterial) -> Bool {
-		for semantic in ModelMaterial.allSemantics {
-			let leftSideValue = MaterialValue(materialProperty: lhs.get(semantic))
-			let rightSideValue = MaterialValue(materialProperty: rhs.get(semantic))
+		let lhsMTL = lhs.generateMTL(includeMaterialName: false, convertToPNG: false)
+		let rhsMTL = rhs.generateMTL(includeMaterialName: false, convertToPNG: false)
 
-			if leftSideValue != rightSideValue {
-				return false
-			}
-		}
-
-		return true
+		return lhsMTL == rhsMTL
 	}
 
 	func get(_ semantic: MDLMaterialSemantic) -> MDLMaterialProperty? {
