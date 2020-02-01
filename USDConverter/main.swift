@@ -16,21 +16,21 @@ extension Sequence where Iterator.Element: Hashable {
     }
 }
 
-let version = "1.2.0"
+let version = "1.2.1"
 print("usdconv v\(version)")
 
 var inputFilePaths = CommandLine.arguments.dropFirst().unique()
-guard inputFilePaths.count != 0 else {
-	print("You need to specify at least one file to convert.")
-	exit(1)
-}
-
 var convertToPNG = false
 
 if inputFilePaths.contains("--png") {
 	convertToPNG = true
 	inputFilePaths.removeAll(where: { $0 == "--png" })
 	print("--png specified, will save all textures as PNG, even non-PNG ones")
+}
+
+guard inputFilePaths.count != 0 else {
+	print("You need to specify at least one file to convert.")
+	exit(1)
 }
 
 
