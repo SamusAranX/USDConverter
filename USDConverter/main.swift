@@ -47,12 +47,14 @@ for inFile in inputFilePaths {
 	let modelBase = model.deletingPathExtension().lastPathComponent
 
 	let modelObj   = "\(modelBase).obj"
+	let modelTestObj   = "\(modelBase)_test.obj"
 	let modelIOObj = "\(modelBase)_ModelIO.obj"
 	let modelMtl   = "\(modelBase).mtl"
 //	let modelIOMtl = "\(modelBase)_ModelIO.mtl" // unused
 	let modelInfo  = "\(modelBase)_duplicates.txt"
 
 	let modelObjURL   = URL(fileURLWithPath: modelObj, relativeTo: modelDir)
+	let modelTestObjURL   = URL(fileURLWithPath: modelTestObj, relativeTo: modelDir)
 	let modelIOObjURL = URL(fileURLWithPath: modelIOObj, relativeTo: modelDir)
 	let modelMtlURL   = URL(fileURLWithPath: modelMtl, relativeTo: modelDir)
 //	let modelIOMtlURL = URL(fileURLWithPath: modelIOMtl, relativeTo: modelDir) // unused
@@ -76,6 +78,10 @@ for inFile in inputFilePaths {
 	print("Filtering out duplicate materials from \(modelObj)…")
 
 	let modelFile = try ModelFile(modelFile: model)
+
+	try! modelFile.generateOBJ().write(to: modelTestObjURL, atomically: true, encoding: .utf8)
+	exit(0)
+
 	let materialCountDict = Dictionary(grouping: modelFile.materials, by: { $0 })
 	let sortedMaterialCount = materialCountDict.sorted(by: {$0.1.count > $1.1.count})
 

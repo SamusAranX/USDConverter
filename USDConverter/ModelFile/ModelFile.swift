@@ -11,13 +11,27 @@ import ModelIO
 
 class ModelFile {
 
+	private struct LineInfo {
+		var prefix: String
+		var values: Int
+	}
+
+	private let lineDefs: [String: LineInfo] = [
+		MDLVertexAttributePosition: LineInfo(prefix: "v", values: 3),
+		MDLVertexAttributeNormal: LineInfo(prefix: "vn", values: 3),
+		MDLVertexAttributeTextureCoordinate: LineInfo(prefix: "vt", values: 2)
+	]
+
 	let file: URL
 	var materials: [ModelMaterial]
+	var submeshes: [MDLSubmesh]
 
 	private var asset: MDLAsset
 
 	init(modelFile: URL) throws {
 		self.file = modelFile
+
+		self.submeshes = []
 		self.materials = []
 
 		self.asset = MDLAsset(url: self.file)
@@ -35,6 +49,8 @@ class ModelFile {
 					print("submesh conversion failed")
 					continue
 				}
+
+				self.submeshes.append(submesh)
 
 				guard let material = submesh.material else {
 					continue
@@ -60,6 +76,85 @@ class ModelFile {
 			mtlString.append(material.generateMTL(includeMaterialName: true, convertToPNG: convertToPNG) + "\n\n")
 		}
 		return mtlString.trimmingCharacters(in: .whitespacesAndNewlines)
+	}
+
+	func generateOBJ() -> String {
+		var objString = "# USDConverter OBJ File: \(file.deletingPathExtension().lastPathComponent).obj\n"
+		objString.append("mtllib \(file.deletingPathExtension().lastPathComponent).mtl\n")
+
+		var submeshIndex = 0
+		let off = OBJFloatFormatter()
+
+		for obj in self.asset.childObjects(of: MDLMesh.self) {
+			guard let mesh = obj as? MDLMesh else {
+				print("mesh conversion failed")
+				continue
+			}
+
+			let submesh = self.submeshes[submeshIndex]
+
+			objString.append("g submesh_\(submeshIndex)\n")
+			objString.append("usemtl material_\(submeshIndex)\n")
+
+			print("submesh_\(submeshIndex)")
+
+			for case let attr as MDLVertexAttribute in mesh.vertexDescriptor.attributes where attr.format != .invalid {
+				let buf = mesh.vertexBuffers[attr.bufferIndex]
+				let bufData = Data(bytes: buf.map().bytes, count: buf.length)
+
+				switch(attr.format) {
+				case .float, .float2, .float3, .float4:
+					var array = Array<Float32>(repeating: 0, count: buf.length / MemoryLayout<Float32>.stride)
+					_ = array.withUnsafeMutableBytes { bufData.copyBytes(to: $0) }
+
+					guard let objDefs = self.lineDefs[attr.name] else {
+						break
+					}
+
+					print(attr.name, array.count)
+
+					for i in stride(from: 0, to: array.count, by: objDefs.values) {
+						objString.append(objDefs.prefix)
+						for j in 0..<objDefs.values {
+							let idx = i + j
+							objString.append(" \(off.string(for: array[idx]))")
+						}
+						objString.append("\n")
+					}
+				default:
+					fatalError("Unknown format \(attr.format.rawValue)")
+				}
+			}
+
+			let idxBuf = submesh.indexBuffer
+			let idxBufData = Data(bytes: idxBuf.map().bytes, count: idxBuf.length)
+			var array = Array<Int32>(repeating: 0, count: idxBuf.length / MemoryLayout<Int32>.stride)
+			_ = array.withUnsafeMutableBytes { idxBufData.copyBytes(to: $0) }
+
+			assert(idxBuf.length / submesh.indexCount == 4)
+
+			objString.append("# INDICES: \(array.count)\n")
+
+			for i in stride(from: 0, to: array.count, by: 3) {
+				let v = array[i]
+				let t = array[i+1]
+				let n = array[i+2]
+
+				objString.append("f \(v)/\(t)/\(n)\n")
+			}
+
+			print("tris", array.count)
+
+			submeshIndex += 1
+
+			print("----")
+
+//			if submeshIndex == 1 {
+//				break
+//			}
+		}
+
+		return objString.trimmingCharacters(in: .whitespacesAndNewlines)
 	}
 
 	func extractTextures(_ convertToPNG: Bool) -> Bool {
@@ -97,13 +192,13 @@ class ModelFile {
 				let textureType = textureURL.pathExtension.lowercased()
 
 				switch(textureType) {
-					case "png":
-						imageType = .png
-					case "jpg", "jpeg":
-						imageType = .jpeg
-					default:
-						print("Unknown texture type \"\(textureType)\" of texture \(textureURL.lastPathComponent)")
-						imageType = .png
+				case "png":
+					imageType = .png
+				case "jpg", "jpeg":
+					imageType = .jpeg
+				default:
+					print("Unknown texture type \"\(textureType)\" of texture \(textureURL.lastPathComponent)")
+					imageType = .png
 				}
 
 				if convertToPNG {
@@ -130,4 +225,6 @@ class ModelFile {
 	}
 
 }
+
+
 
