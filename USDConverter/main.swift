@@ -16,18 +16,28 @@ extension Sequence where Iterator.Element: Hashable {
 	}
 }
 
-let version = "1.3"
-print("usdconv v\(version)")
+let version = "1.3.1"
+let versionStr = "usdconv v\(version)"
+print(versionStr)
 
 var inputFilePaths = CommandLine.arguments.dropFirst().unique()
 
 var convertToPNG = false
+var ignoreExtension = false
 
 if inputFilePaths.contains("--png") {
 	convertToPNG = true
 	inputFilePaths.removeAll(where: { $0 == "--png" })
-	print("--png specified, will save all textures as PNG, even non-PNG ones")
+	print("--png specified: Will convert all textures to PNG")
 }
+
+if inputFilePaths.contains("--force") {
+	ignoreExtension = true
+	inputFilePaths.removeAll(where: { $0 == "--force" })
+	print("--force specified: Will ignore file extensions")
+}
+
+print("".padding(toLength: versionStr.count, withPad: "-", startingAt: 0))
 
 guard inputFilePaths.count != 0 else {
 	print("You need to specify at least one file to convert.")
@@ -38,8 +48,12 @@ for inFile in inputFilePaths {
 	let model = URL(fileURLWithPath: inFile)
 	let modelExt = model.pathExtension.lowercased()
 
-	guard modelExt == "usdz", MDLAsset.canImportFileExtension(modelExt) else {
-		print("Error opening \(model.lastPathComponent): usdconf can only open USDZ files.")
+	guard !ignoreExtension || modelExt == "usdz", MDLAsset.canImportFileExtension(modelExt) else {
+		if ignoreExtension {
+			print("Error opening \(model.lastPathComponent): Model I/O can't open this type of file.")
+		} else {
+			print("Error opening \(model.lastPathComponent): usdconv can only open USDZ files.")
+		}
 		continue
 	}
 
@@ -59,6 +73,8 @@ for inFile in inputFilePaths {
 	let modelInfoURL  = URL(fileURLWithPath: modelInfo, relativeTo: modelDir)
 
 	let asset = MDLAsset(url: model)
+
+	print(asset == nil)
 
 	// MARK: - Converting USDZ to OBJ and generating Model I/O MTL file
 
