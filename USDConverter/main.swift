@@ -8,6 +8,8 @@
 
 import Foundation
 import ModelIO
+import SceneKit
+import SceneKit.ModelIO
 
 extension Sequence where Iterator.Element: Hashable {
 	func unique() -> [Iterator.Element] {
@@ -16,7 +18,7 @@ extension Sequence where Iterator.Element: Hashable {
 	}
 }
 
-let version = "1.3.1"
+let version = "1.4"
 let versionStr = "usdconv v\(version)"
 print(versionStr)
 
@@ -48,12 +50,19 @@ for inFile in inputFilePaths {
 	let model = URL(fileURLWithPath: inFile)
 	let modelExt = model.pathExtension.lowercased()
 
-	guard !ignoreExtension || modelExt == "usdz", MDLAsset.canImportFileExtension(modelExt) else {
-		if ignoreExtension {
-			print("Error opening \(model.lastPathComponent): Model I/O can't open this type of file.")
-		} else {
-			print("Error opening \(model.lastPathComponent): usdconv can only open USDZ files.")
-		}
+	let modelIsSceneKit = modelExt == "scn" || modelExt == "scnz"
+	let modelIsUSDZ = modelExt == "usdz"
+
+	let modelIsImportable = MDLAsset.canImportFileExtension(modelExt)
+
+
+	if !modelIsUSDZ && !modelIsSceneKit && !ignoreExtension {
+		print("Error opening \(model.lastPathComponent): usdconv can only open USDZ and SceneKit files.")
+		continue
+	}
+
+	if !modelIsImportable && !modelIsSceneKit {
+		print("Error opening \(model.lastPathComponent): Model I/O can't open this type of file.")
 		continue
 	}
 
@@ -72,9 +81,20 @@ for inFile in inputFilePaths {
 //	let modelIOMtlURL = URL(fileURLWithPath: modelIOMtl, relativeTo: modelDir) // unused
 	let modelInfoURL  = URL(fileURLWithPath: modelInfo, relativeTo: modelDir)
 
-	let asset = MDLAsset(url: model)
+	var asset: MDLAsset
 
-	print(asset == nil)
+	if modelIsSceneKit {
+		print("\(model.lastPathComponent): SceneKit scene detected. Attempting to convert…")
+
+		guard let scene = try? SCNScene(url: model, options: nil) else {
+			print("Error opening \(model.lastPathComponent): Invalid SceneKit file.")
+			continue
+		}
+
+		asset = MDLAsset(scnScene: scene)
+	} else {
+		asset = MDLAsset(url: model)
+	}
 
 	// MARK: - Converting USDZ to OBJ and generating Model I/O MTL file
 
@@ -84,6 +104,10 @@ for inFile in inputFilePaths {
 		try asset.export(to: modelIOObjURL)
 	} catch {
 		print("Couldn't convert \(model.lastPathComponent).")
+		continue
+	}
+
+	if !modelIsImportable {
 		continue
 	}
 
