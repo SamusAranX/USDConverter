@@ -18,14 +18,34 @@ extension Sequence where Iterator.Element: Hashable {
 	}
 }
 
-let version = "1.4"
-let versionStr = "usdconv v\(version)"
-print(versionStr)
-
 var inputFilePaths = CommandLine.arguments.dropFirst().unique()
 
 var convertToPNG = false
 var ignoreExtension = false
+
+if inputFilePaths.isEmpty || inputFilePaths.contains("-h") || inputFilePaths.contains("--help") {
+    print("Usage: usdconv [-h/--help] [-v/--version] [--png] [--force] file [file ...]")
+    print()
+    print("Specify one or more .usdz files (.scn and .scnz files have experimental support as well) to generate .obj/.mtl files next to them.")
+    print()
+    print("Positional arguments:")
+    print("\tfile(s)\t")
+    print()
+    print("Optional arguments:")
+    print("\t-h/--help\t\tShow this help message and exit")
+    print("\t-v/--version\t\tShow the version number and exit")
+    print("\t--png\t\tConvert all textures to PNG, no matter what initial format they're in")
+    print("\t--force\t\tTry to force conversion, even if usdconv doesn't officially support an input file format")
+    exit(0)
+}
+
+let version = "1.4.1"
+let versionStr = "usdconv v\(version)"
+print(versionStr)
+
+if inputFilePaths.contains("-v") || inputFilePaths.contains("--version") {
+    exit(0)
+}
 
 if inputFilePaths.contains("--png") {
 	convertToPNG = true
@@ -54,7 +74,6 @@ for inFile in inputFilePaths {
 	let modelIsUSDZ = modelExt == "usdz"
 
 	let modelIsImportable = MDLAsset.canImportFileExtension(modelExt)
-
 
 	if !modelIsUSDZ && !modelIsSceneKit && !ignoreExtension {
 		print("Error opening \(model.lastPathComponent): usdconv can only open USDZ and SceneKit files.")
