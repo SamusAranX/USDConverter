@@ -39,7 +39,7 @@ if inputFilePaths.isEmpty || inputFilePaths.contains("-h") || inputFilePaths.con
     exit(0)
 }
 
-let version = "1.4.1"
+let version = "1.4.2"
 let versionStr = "usdconv v\(version)"
 print(versionStr)
 
@@ -70,17 +70,17 @@ for inFile in inputFilePaths {
 	let model = URL(fileURLWithPath: inFile)
 	let modelExt = model.pathExtension.lowercased()
 
-	let modelIsSceneKit = modelExt == "scn" || modelExt == "scnz"
-	let modelIsUSDZ = modelExt == "usdz"
+	let fileIsSceneKit = modelExt == "scn" || modelExt == "scnz"
+	let fileIsUSDZ = modelExt == "usdz"
 
 	let modelIsImportable = MDLAsset.canImportFileExtension(modelExt)
 
-	if !modelIsUSDZ && !modelIsSceneKit && !ignoreExtension {
+	if !fileIsUSDZ && !fileIsSceneKit && !ignoreExtension {
 		print("Error opening \(model.lastPathComponent): usdconv can only open USDZ and SceneKit files.")
 		continue
 	}
 
-	if !modelIsImportable && !modelIsSceneKit {
+	if !modelIsImportable && !fileIsSceneKit {
 		print("Error opening \(model.lastPathComponent): Model I/O can't open this type of file.")
 		continue
 	}
@@ -91,18 +91,16 @@ for inFile in inputFilePaths {
 	let modelObj   = "\(modelBase).obj"
 	let modelIOObj = "\(modelBase)_ModelIO.obj"
 	let modelMtl   = "\(modelBase).mtl"
-//	let modelIOMtl = "\(modelBase)_ModelIO.mtl" // unused
 	let modelInfo  = "\(modelBase)_duplicates.txt"
 
 	let modelObjURL   = URL(fileURLWithPath: modelObj, relativeTo: modelDir)
 	let modelIOObjURL = URL(fileURLWithPath: modelIOObj, relativeTo: modelDir)
 	let modelMtlURL   = URL(fileURLWithPath: modelMtl, relativeTo: modelDir)
-//	let modelIOMtlURL = URL(fileURLWithPath: modelIOMtl, relativeTo: modelDir) // unused
 	let modelInfoURL  = URL(fileURLWithPath: modelInfo, relativeTo: modelDir)
 
 	var asset: MDLAsset
 
-	if modelIsSceneKit {
+	if fileIsSceneKit {
 		print("\(model.lastPathComponent): SceneKit scene detected. Attempting to convert…")
 
 		guard let scene = try? SCNScene(url: model, options: nil) else {
