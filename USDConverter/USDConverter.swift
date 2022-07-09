@@ -13,7 +13,7 @@ import SceneKit.ModelIO
 
 class USDConverter {
 
-	static let version = "1.5"
+	static let version = "1.5.1"
 	static var fullVersion: String? {
 		get {
 			guard let binaryPath = CommandLine.arguments.first else {
@@ -83,6 +83,10 @@ class USDConverter {
 				asset = MDLAsset(scnScene: scene)
 			} else {
 				asset = MDLAsset(url: model)
+			}
+
+			if asset.frameInterval != 0 && asset.endTime - asset.startTime > 0.05 {
+				print("NOTE: This asset contains animation information that will be discarded in the conversion to OBJ.")
 			}
 
 			// MARK: - Converting USDZ to OBJ and generating Model I/O MTL file

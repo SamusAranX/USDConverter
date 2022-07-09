@@ -28,7 +28,7 @@ struct Main: ParsableCommand {
 	var includeGarbage: Bool = false
 
 	@Argument(help: "The input file(s).", completion: .file())
-	var input: [String] = [""] // give default value so --version can work
+	var input: [String] = [] // give default value so --version can work
 
 	mutating func run() throws {
 		guard let fullVersion = USDConverter.fullVersion else {
@@ -44,7 +44,7 @@ struct Main: ParsableCommand {
 
 		print("".padding(toLength: fullVersion.count, withPad: "-", startingAt: 0))
 
-		guard self.input.filter({$0.trimmingCharacters(in: .whitespaces).isEmpty}).isEmpty else {
+		guard !self.input.isEmpty else {
 			print("Error: Specify at least one input file")
 			Darwin.exit(1)
 		}

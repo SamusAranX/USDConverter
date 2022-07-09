@@ -102,7 +102,7 @@ class ModelFile {
 					case "jpg", "jpeg":
 						imageType = .jpeg
 					default:
-						print("Unknown texture type \"\(textureType)\" of texture \(textureURL.lastPathComponent)")
+						// setting imageType to .png seems to make textures convertable, so ???
 						imageType = .png
 				}
 
