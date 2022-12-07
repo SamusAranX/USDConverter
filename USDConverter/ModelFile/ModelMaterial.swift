@@ -120,9 +120,9 @@ class ModelMaterial: Hashable, CustomStringConvertible {
 				let textureRange = Range(match.range(at: 2), in: texturePath) {
 
 				let modelPath = String(texturePath[filenameRange])
-				let textureFile = URL(fileURLWithPath: String(texturePath[textureRange])).lastPathComponent
+				let textureURL = URL(fileURLWithPath: String(texturePath[textureRange]))
 
-				return "\(modelPath)/\(textureFile)"
+				return "\(modelPath)/\(textureURL.lastPathComponent)"
 			}
 		} catch {
 			return texturePath
