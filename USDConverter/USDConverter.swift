@@ -13,7 +13,7 @@ import SceneKit.ModelIO
 
 class USDConverter {
 
-	static let version = "1.5.1"
+	static let version = "1.6"
 	static var fullVersion: String? {
 		get {
 			guard let binaryPath = CommandLine.arguments.first else {
@@ -25,18 +25,22 @@ class USDConverter {
 		}
 	}
 
-	static func run(inputFiles: [String], convertToPNG: Bool, forceConversion: Bool, includeGarbage: Bool) {
-		if convertToPNG {
+	static func run(options: Main) {
+		if options.png {
 			print("* Will convert all textures to PNG")
 		}
 
-		if forceConversion {
+		if options.force {
 			print("* Will attempt conversion for unsupported input file types")
+		}
+
+		if let outDir = options.outputDirectory {
+			print("* Will output all files to \(outDir)")
 		}
 
 		// MARK: Begin conversion
 
-		for inFile in inputFiles {
+		for inFile in options.input {
 			let model = URL(fileURLWithPath: inFile)
 			let modelExt = model.pathExtension.lowercased()
 
@@ -45,7 +49,7 @@ class USDConverter {
 
 			let modelIsImportable = MDLAsset.canImportFileExtension(modelExt)
 
-			if !fileIsUSDZ && !fileIsSceneKit && !forceConversion {
+			if !fileIsUSDZ && !fileIsSceneKit && !options.force {
 				print("Error opening \(model.lastPathComponent): usdconv can only open USDZ and SceneKit files.")
 				continue
 			}
@@ -55,7 +59,11 @@ class USDConverter {
 				continue
 			}
 
-			let modelDir = model.deletingLastPathComponent()
+			var outputDir = model.deletingLastPathComponent()
+			if let outDir = options.outputDirectory {
+				outputDir = URL(filePath: outDir, directoryHint: .isDirectory)
+			}
+
 			let modelBase = model.deletingPathExtension().lastPathComponent
 
 			let modelObj   = "\(modelBase).obj"
@@ -64,11 +72,11 @@ class USDConverter {
 			let garbageMtl = "\(modelBase)_ModelIO.mtl"
 			let modelInfo  = "\(modelBase)_duplicates.txt"
 
-			let modelObjURL   = URL(fileURLWithPath: modelObj, relativeTo: modelDir)
-			let modelMtlURL   = URL(fileURLWithPath: modelMtl, relativeTo: modelDir)
-			let garbageObjURL = URL(fileURLWithPath: garbageObj, relativeTo: modelDir)
-			let garbageMtlURL = URL(fileURLWithPath: garbageMtl, relativeTo: modelDir)
-			let modelInfoURL  = URL(fileURLWithPath: modelInfo, relativeTo: modelDir)
+			let modelObjURL   = URL(fileURLWithPath: modelObj, relativeTo: outputDir)
+			let modelMtlURL   = URL(fileURLWithPath: modelMtl, relativeTo: outputDir)
+			let garbageObjURL = URL(fileURLWithPath: garbageObj, relativeTo: outputDir)
+			let garbageMtlURL = URL(fileURLWithPath: garbageMtl, relativeTo: outputDir)
+			let modelInfoURL  = URL(fileURLWithPath: modelInfo, relativeTo: outputDir)
 
 			var asset: MDLAsset
 
@@ -179,7 +187,7 @@ class USDConverter {
 			}
 
 			print("Writing MTL file: \(modelMtl)…")
-			let mtlContents = modelFile.generateMTL(convertToPNG, excludeMaterials: duplicateMaterialNames)
+			let mtlContents = modelFile.generateMTL(options.png, excludeMaterials: duplicateMaterialNames)
 			do {
 				try mtlContents.write(to: modelMtlURL, atomically: true, encoding: .utf8)
 			} catch {
@@ -187,7 +195,7 @@ class USDConverter {
 				continue
 			}
 
-			if includeGarbage {
+			if options.includeGarbage {
 				print("Writing list of duplicates: \(modelInfo)…")
 				do {
 					let outputStr = auxString.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -201,13 +209,13 @@ class USDConverter {
 			// MARK: - Extracting textures
 
 			print("Extracting textures…")
-			if !modelFile.extractTextures(convertToPNG) {
+			if !modelFile.extractTextures(options.png, outputDirectory: outputDir) {
 				print("Couldn't extract textures")
 			}
 
 			// MARK: - Optional cleanup
 
-			if !includeGarbage {
+			if !options.includeGarbage {
 				print("Deleting Model I/O garbage…")
 				do {
 					try FileManager.default.removeItem(at: garbageObjURL)

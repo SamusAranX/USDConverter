@@ -62,7 +62,7 @@ class ModelFile {
 		return mtlString.trimmingCharacters(in: .whitespacesAndNewlines)
 	}
 
-	func extractTextures(_ convertToPNG: Bool) -> Bool {
+	func extractTextures(_ convertToPNG: Bool, outputDirectory: URL) -> Bool {
 		var alreadySaved: [URL] = []
 
 		for material in self.materials {
@@ -73,7 +73,39 @@ class ModelFile {
 						continue
 				}
 
-				var textureURL = URL(fileURLWithPath: ModelMaterial.parseTexturePath(texturePath))
+				let texturePathParsed = ModelMaterial.parseTexturePath(texturePath)
+				var urlComponents = URL(fileURLWithPath: texturePathParsed).pathComponents
+
+				let textureFileName = urlComponents.popLast()!
+				let textureOutDir = urlComponents.popLast()!
+
+				var textureURL = outputDirectory.appending(component: textureOutDir).appending(component: textureFileName)
+
+				guard let texture = textureSampler.texture else {
+					continue
+				}
+
+				let cgImage = texture.imageFromTexture()!.takeRetainedValue()
+				let nsBitmap = NSBitmapImageRep(cgImage: cgImage)
+
+				var imageType: NSBitmapImageRep.FileType
+				if convertToPNG {
+					// override automatic selection here
+					imageType = .png
+					textureURL = textureURL.deletingPathExtension().appendingPathExtension("png")
+				} else {
+					let textureType = textureURL.pathExtension.lowercased()
+					switch(textureType) {
+						case "png":
+							imageType = .png
+						case "jpg", "jpeg":
+							imageType = .jpeg
+						default:
+							// setting imageType to .png seems to make textures convertable, so ???
+							imageType = .png
+					}
+				}
+
 				guard !alreadySaved.contains(textureURL) else {
 					continue
 				}
@@ -86,34 +118,8 @@ class ModelFile {
 					return false
 				}
 
-				guard let texture = textureSampler.texture else {
-					continue
-				}
-
-				let cgImage = texture.imageFromTexture()!.takeRetainedValue()
-				let nsBitmap = NSBitmapImageRep(cgImage: cgImage)
-
-				var imageType: NSBitmapImageRep.FileType
-				let textureType = textureURL.pathExtension.lowercased()
-
-				switch(textureType) {
-					case "png":
-						imageType = .png
-					case "jpg", "jpeg":
-						imageType = .jpeg
-					default:
-						// setting imageType to .png seems to make textures convertable, so ???
-						imageType = .png
-				}
-
-				if convertToPNG {
-					// override automatic selection here
-					imageType = .png
-					textureURL = textureURL.deletingPathExtension().appendingPathExtension("png")
-				}
-
 				let imageData = nsBitmap.representation(using: imageType, properties: [
-					NSBitmapImageRep.PropertyKey.compressionFactor: NSNumber(floatLiteral: 1.0)
+					NSBitmapImageRep.PropertyKey.compressionFactor: NSNumber(floatLiteral: 1.0) // only used for JPEG files, disables compression
 				])!
 
 				do {
