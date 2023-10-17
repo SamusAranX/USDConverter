@@ -61,8 +61,11 @@ class ModelMaterial: Hashable, CustomStringConvertible {
 	}
 
 	var name: String
+	var simpleName: String
 	private let internalMaterial: MDLMaterial?
-	private var assetURL: URL?
+	private var assetURL: URL
+
+	public var description: String { "\(simpleName) (\(name))" }
 
 	static let allSemantics: [MDLMaterialSemantic] = [
 		.baseColor, .emission, .specular, .opacity, .ambientOcclusion, .subsurface, .metallic, .specularTint,
@@ -80,12 +83,9 @@ class ModelMaterial: Hashable, CustomStringConvertible {
 		"Kd", "Ka", "Ks"
 	]
 
-	var description: String {
-		return self.generateMTL(includeMaterialName: false, convertToPNG: false)
-	}
-
-	init(materialName: String, originalMaterial: MDLMaterial?, assetURL: URL?) {
-		self.name = materialName
+	init(simpleName: String, originalMaterial: MDLMaterial, assetURL: URL) {
+		self.name = originalMaterial.name
+		self.simpleName = simpleName
 		self.internalMaterial = originalMaterial
 		self.assetURL = assetURL
 	}
@@ -135,32 +135,38 @@ class ModelMaterial: Hashable, CustomStringConvertible {
 		var tempString = ""
 
 		if includeMaterialName {
-			tempString = "newmtl \(name)\n"
+			tempString = "newmtl \(self.simpleName) # (\(self.name))\n"
 		}
 
 		for semantic in ModelMaterial.allSemantics {
-			if let propertyValue = self.get(semantic) {
-				let semanticName = ModelMaterial.allSemanticsDict[semantic] ?? ""
-				let materialValue = MaterialValue(materialProperty: propertyValue, forceExtended: self.forceExtendedProperties.contains(semanticName))
+			guard let propertyValue = self.get(semantic) else {
+				continue
+			}
 
-				if let stringValue = materialValue.stringValue, let assetURL = assetURL {
-					var texturePath = URL(fileURLWithPath: stringValue).absoluteString.removingPercentEncoding!
-					let modelDir = assetURL.deletingLastPathComponent().absoluteString.removingPercentEncoding!
-					if let dirRange = texturePath.range(of: modelDir) {
-						texturePath.removeSubrange(dirRange)
-					}
+			guard let semanticName = ModelMaterial.allSemanticsDict[semantic] else {
+				print("Material \(self.name): Unknown semantic key \"\(semantic)\"!")
+				continue
+			}
 
-					var texPath = ModelMaterial.parseTexturePath(texturePath)
+			let materialValue = MaterialValue(materialProperty: propertyValue, forceExtended: self.forceExtendedProperties.contains(semanticName))
 
-					if convertToPNG {
-						let texURL = URL(fileURLWithPath: texPath).deletingPathExtension().appendingPathExtension("png")
-						texPath = texURL.relativeString
-					}
-
-					tempString.append("\tmap_\(semanticName) \(texPath)\n")
-				} else {
-					tempString.append("\t\(semanticName) \(materialValue.formattedFloat)\n")
+			if let stringValue = materialValue.stringValue {
+				var texturePath = URL(fileURLWithPath: stringValue).absoluteString.removingPercentEncoding!
+				let modelDir = assetURL.deletingLastPathComponent().absoluteString.removingPercentEncoding!
+				if let dirRange = texturePath.range(of: modelDir) {
+					texturePath.removeSubrange(dirRange)
 				}
+
+				var texPath = ModelMaterial.parseTexturePath(texturePath)
+
+				if convertToPNG {
+					let texURL = URL(fileURLWithPath: texPath).deletingPathExtension().appendingPathExtension("png")
+					texPath = texURL.relativeString
+				}
+
+				tempString.append("\tmap_\(semanticName) \(texPath)\n")
+			} else {
+				tempString.append("\t\(semanticName) \(materialValue.formattedFloat)\n")
 			}
 		}
 

@@ -41,24 +41,21 @@ class ModelFile {
 				}
 
 				let materialName = "material_\(childIndex)"
-				let mtlMaterial = ModelMaterial(materialName: materialName, originalMaterial: material, assetURL: self.asset.url)
-				self.materials.append(mtlMaterial)
-
 				childIndex += 1
+
+				let mtlMaterial = ModelMaterial(simpleName: materialName, originalMaterial: material, assetURL: self.file)
+				self.materials.append(mtlMaterial)
 			}
 		}
 	}
 
-	func generateMTL(_ convertToPNG: Bool, excludeMaterials: [String]) -> String {
-		var mtlString = "# USDConverter MTL File: \(file.deletingPathExtension().lastPathComponent).mtl\n"
-		if !excludeMaterials.isEmpty {
-			mtlString.append("# \(excludeMaterials.count) duplicate materials have been omitted\n")
-		}
-		mtlString.append("\n")
+	func generateMTL(_ convertToPNG: Bool, usedMaterials: [ModelMaterial]) -> String {
+		var mtlString = "# USDConverter MTL File: \(self.file.deletingPathExtension().lastPathComponent).mtl\n\n"
 
-		for material in self.materials.filter({ !excludeMaterials.contains($0.name) }) {
+		for material in usedMaterials {
 			mtlString.append(material.generateMTL(includeMaterialName: true, convertToPNG: convertToPNG) + "\n\n")
 		}
+
 		return mtlString.trimmingCharacters(in: .whitespacesAndNewlines)
 	}
 
