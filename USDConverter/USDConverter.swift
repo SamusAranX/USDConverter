@@ -13,7 +13,7 @@ import SceneKit.ModelIO
 
 class USDConverter {
 
-	static let version = "1.6"
+	static let version = "1.7"
 	static var fullVersion: String? {
 		get {
 			guard let binaryPath = CommandLine.arguments.first else {
@@ -25,6 +25,9 @@ class USDConverter {
 		}
 	}
 
+	static var objcTrue: ObjCBool = true
+	static var objcFalse: ObjCBool = false
+
 	static func run(options: Main) {
 		if options.png {
 			print("* Will convert all textures to PNG")
@@ -34,8 +37,13 @@ class USDConverter {
 			print("* Will attempt conversion for unsupported input file types")
 		}
 
-		if let outDir = options.outputDirectory {
-			print("* Will output all files to \(outDir)")
+		if let checkOutDir = options.outputDirectory {
+			if !FileManager.default.fileExists(atPath: checkOutDir, isDirectory: &objcTrue) {
+				print("Error: Specified output directory \"\(checkOutDir)\" does not exist.")
+				exit(1)
+			}
+
+			print("* Will output all files to \(checkOutDir)")
 		}
 
 		// MARK: Begin conversion
@@ -43,6 +51,11 @@ class USDConverter {
 		for inFile in options.input {
 			let model = URL(fileURLWithPath: inFile)
 			let modelExt = model.pathExtension.lowercased()
+
+			if !FileManager.default.fileExists(atPath: inFile) {
+				print("Error opening \(model.lastPathComponent): File not found.")
+				continue
+			}
 
 			let fileIsSceneKit = modelExt == "scn" || modelExt == "scnz"
 			let fileIsUSDZ = modelExt == "usdz"
@@ -130,17 +143,9 @@ class USDConverter {
 			var auxString = "# USDConverter List Of Duplicate Materials: \(modelObj)\n"
 			auxString.append("\(sortedMaterialCount.count) distinct materials in total\n\n")
 
-			var duplicateMaterialNames: [String] = []
 			for kvi in sortedMaterialCount {
 				let occurrenceStr = kvi.value.count == 1 ? "occurrence" : "occurrences"
 				auxString.append("\(kvi.key.name): \(kvi.value.count) \(occurrenceStr)\n")
-
-				for material in kvi.value.dropFirst().sorted(by: { $0.name.localizedStandardCompare($1.name) == .orderedAscending }) {
-					auxString.append("\t\(material.name)\n")
-					duplicateMaterialNames.append(material.name)
-				}
-
-				auxString.append("\n")
 			}
 
 			// MARK: - De-duplicate OBJ materials
@@ -152,29 +157,35 @@ class USDConverter {
 				continue
 			}
 
+			var usedMaterials: [ModelMaterial] = []
 			var newObjContents: [String] = []
-			objContents.enumerateLines(invoking: {
-				line, _ in
-
+			objContents.enumerateLines(invoking: { line, _ in
 				if line.starts(with: "mtllib") {
 					newObjContents.append("mtllib \(modelMtl)")
 					return
+				} else if line.starts(with: "# Apple ModelIO OBJ File") {
+					newObjContents.append("# USDConverter OBJ File: \(modelObjURL.deletingPathExtension().lastPathComponent).obj")
+					return
 				}
 
-				guard line.starts(with: "usemtl") else {
+				guard line.starts(with: "usemtl ") else {
 					newObjContents.append(line)
 					return
 				}
 
-				let matName = line.dropFirst(7)
-				let deduplicatedMatName = materialCountDict.filter({
-					return $0.value.map({
-						Substring($0.name) // Swift wants a Substring for some reason
-					}).contains(matName)
-				})[0].key.name
+				let matName = String(line.trimmingPrefix("usemtl "))
+				guard let matMatch = materialCountDict.first(where: { 
+					(_: ModelMaterial, duplicates: [ModelMaterial]) -> Bool in
+					return duplicates.map({ $0.name }).contains(matName)
+				}) else {
+					return
+				}
 
-				newObjContents.append("usemtl \(deduplicatedMatName)")
+				usedMaterials.append(matMatch.key)
+				newObjContents.append("usemtl \(matMatch.key.simpleName)")
 			})
+
+			usedMaterials = Array(Set(usedMaterials)).sorted(by: { $0.simpleName.localizedStandardCompare($1.simpleName) == .orderedAscending })
 
 			// MARK: - Writing corrected files
 
@@ -187,7 +198,7 @@ class USDConverter {
 			}
 
 			print("Writing MTL file: \(modelMtl)…")
-			let mtlContents = modelFile.generateMTL(options.png, excludeMaterials: duplicateMaterialNames)
+			let mtlContents = modelFile.generateMTL(options.png, usedMaterials: usedMaterials)
 			do {
 				try mtlContents.write(to: modelMtlURL, atomically: true, encoding: .utf8)
 			} catch {

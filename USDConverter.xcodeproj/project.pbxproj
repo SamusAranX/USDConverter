@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -27,11 +27,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		5682EE9623A04B3900D68022 /* ModelFile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModelFile.swift; sourceTree = "<group>"; };
-		5682EE9A23A04B3900D68022 /* ModelMaterial.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModelMaterial.swift; sourceTree = "<group>"; };
+		5682EE9623A04B3900D68022 /* ModelFile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ModelFile.swift; sourceTree = "<group>"; };
+		5682EE9A23A04B3900D68022 /* ModelMaterial.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ModelMaterial.swift; sourceTree = "<group>"; };
 		56B3E89B22AFC0D100151FEE /* usdconv */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = usdconv; sourceTree = BUILT_PRODUCTS_DIR; };
-		56B3E89E22AFC0D100151FEE /* USDConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = USDConverter.swift; sourceTree = "<group>"; };
-		56DE903F2751A647000E4D93 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		56B3E89E22AFC0D100151FEE /* USDConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = USDConverter.swift; sourceTree = "<group>"; };
+		56DE903F2751A647000E4D93 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = main.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,7 +113,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1100;
-				LastUpgradeCheck = 1410;
+				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					56B3E89A22AFC0D100151FEE = {
 						CreatedOnToolsVersion = 11.0;
@@ -121,7 +121,7 @@
 				};
 			};
 			buildConfigurationList = 56B3E89622AFC0D100151FEE /* Build configuration list for PBXProject "USDConverter" */;
-			compatibilityVersion = "Xcode 9.3";
+			compatibilityVersion = "Xcode 15.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
